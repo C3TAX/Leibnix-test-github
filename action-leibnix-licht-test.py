@@ -30,26 +30,27 @@ def subscribe_intent_callback(hermes, intentMessage):
 
 
 def action_wrapper(hermes, intentMessage, conf):
-#    import websockets
-#    import asyncio
-#
-#    async def hello():
-#            uri = "ws://192.168.178.102:8080"
-#            addr = "00_0_002"
-#            val = 1
-#            payload = "Update GA:"+addr+"="+str(val)
-#            async with websockets.connect(uri) as websocket:
-#                    await websocket.send(payload)
-#                    print(payload)
-    result_sentence = "Licht ist an"
+ import websockets
 
-#    asyncio.get_event_loop().run_until_complete(hello())
+    from websocket import create_connection
+    ws = create_connection("ws://192.168.178.102:8080")
+    ws.send("Update GA:00_0_002=1")
+    result =  ws.recv()
+    ws.close()
+
+
+
+    if len(intentMessage.slots.house_room) > 0:
+        house_room = intentMessage.slots.house_room.first().value # We extract the value from the slot "house_room"
+        result_sentence = "Turning on lights in : {}".format(str(house_room))  # The response that will be said out loud by the TTS engine.
+    else:
+        result_sentence = "Lampe an"
 
     current_session_id = intentMessage.session_id
     hermes.publish_end_session(current_session_id, result_sentence)
 
-
 if __name__ == "__main__":
-    with Hermes("localhost:1883") as h:
-        h.subscribe_intent("cetax:leibnix-licht-test", subscribe_intent_callback) \
+    mqtt_opts = MqttOptions()
+    with Hermes(mqtt_options=mqtt_opts) as h:
+        h.subscribe_intent("Esstisch_Licht_an", subscribe_intent_callback) \
          .start()
