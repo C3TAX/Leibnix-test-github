@@ -6,6 +6,8 @@ from hermes_python.hermes import Hermes
 from hermes_python.ffi.utils import MqttOptions
 from hermes_python.ontology import *
 import io
+import websockets
+from websocket import create_connection
 
 CONFIGURATION_ENCODING_FORMAT = "utf-8"
 CONFIG_INI = "config.ini"
@@ -24,25 +26,18 @@ def read_configuration_file(configuration_file):
     except (IOError, configparser.Error) as e:
         return dict()
 
-def subscribe_intent_callback(hermes, intentMessage):
+
+def msg_licht_an(hermes, intentMessage):
     conf = read_configuration_file(CONFIG_INI)
-    action_wrapper(hermes, intentMessage, conf)
-
-
-def action_wrapper(hermes, intentMessage, conf):
- import websockets
-
-    from websocket import create_connection
+    
     ws = create_connection("ws://192.168.178.102:8080")
     ws.send("Update GA:00_0_002=1")
     result =  ws.recv()
     ws.close()
 
-
-
     if len(intentMessage.slots.house_room) > 0:
         house_room = intentMessage.slots.house_room.first().value # We extract the value from the slot "house_room"
-        result_sentence = "Turning on lights in : {}".format(str(house_room))  # The response that will be said out loud by the TTS engine.
+        result_sentence = "Das Licht wird in {} angeschaltet".format(str(house_room))  # The response that will be said out loud by the TTS engine.
     else:
         result_sentence = "Lampe an"
 
@@ -52,5 +47,5 @@ def action_wrapper(hermes, intentMessage, conf):
 if __name__ == "__main__":
     mqtt_opts = MqttOptions()
     with Hermes(mqtt_options=mqtt_opts) as h:
-        h.subscribe_intent("Esstisch_Licht_an", subscribe_intent_callback) \
-         .start()
+        h.subscribe_intent("cetax:Esstisch_Licht_an", msg_licht_an)
+        h.start()
