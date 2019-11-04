@@ -29,10 +29,11 @@ def read_configuration_file(configuration_file):
 
 def msg_licht_an(hermes, intentMessage):
     conf = read_configuration_file(CONFIG_INI)
+    action_wrapper(hermes, intentMessage, conf)
     
     ws = create_connection("ws://192.168.178.102:8080")
     ws.send("Update GA:00_0_002=1")
-    result =  ws.recv()
+    #result =  ws.recv()
     ws.close()
 
     if len(intentMessage.slots.house_room) > 0:
@@ -48,4 +49,4 @@ if __name__ == "__main__":
     mqtt_opts = MqttOptions()
     with Hermes(mqtt_options=mqtt_opts) as h:
         h.subscribe_intent("cetax:Esstisch_Licht_an", msg_licht_an)
-        h.start()
+        .start()
