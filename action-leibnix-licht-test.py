@@ -29,7 +29,6 @@ def read_configuration_file(configuration_file):
 
 def msg_licht_an(hermes, intentMessage):
     conf = read_configuration_file(CONFIG_INI)
-    action_wrapper(hermes, intentMessage, conf)
     
     ws = create_connection("ws://192.168.178.102:8080")
     ws.send("Update GA:00_0_002=1")
