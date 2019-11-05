@@ -48,4 +48,4 @@ if __name__ == "__main__":
     mqtt_opts = MqttOptions()
     with Hermes(mqtt_options=mqtt_opts) as h:
         h.subscribe_intent("cetax:Esstisch_Licht_an", msg_licht_an)
-        .start()
+        h.start()
